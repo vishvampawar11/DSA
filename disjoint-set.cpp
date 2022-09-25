@@ -1,32 +1,50 @@
-  int findParents(int a, vector<int> &parents) {
-      while(parents[a] != -1)
-          a = parents[a];
+// Finds connected components in graph
 
-      // path compression
-      if(parents[a] != -1)
-          parents[a] = a;
-      return a;
+#include <bits/stdc++.h>
+using namespace std;
+ 
+const int N = 1e5+7;
+ 
+int parent[N];
+int sizes[N];
+ 
+void make(int v) {
+  parent[v] = v;
+  sizes[v] = 1;
+}
+ 
+int findParent(int v) {
+  if(parent[v] == v)
+    return v;
+  return parent[v] = findParent(parent[v]);
+}
+ 
+void unionParents(int a, int b) {
+  a = findParent(a);
+  b = findParent(b);
+  if(a != b) {
+    if(sizes[a] < sizes[b])
+      swap(a, b);
+    parent[b] = a;
+    sizes[a] += sizes[b];
   }
-
-  void unionParents(int a, int b, vector<int> &parents, vector<int> &ranks) {
-      if(ranks[a] > ranks[b])
-          parents[a] = b;
-      else if(ranks[b] > ranks[a])
-          parents[b] = a;
-      else {
-          parents[a] = b;
-          ranks[a]++;
-      }
-  }
-
-  void disjointSet(vector<vector<int>>& v) {
-      vector<int> parents(1007, -1);
-      vector<int> ranks(1007, 0);
-
-      for(auto it : v) {
-          int parA = findParents(it[0], parents);
-          int parB = findParents(it[1], parents);
-          if(parA != parB)
-              unionParents(parA, parB, parents, ranks);
-      }
-  }
+}
+ 
+ 
+int main() {
+	int n, k;
+	cin>>n>>k;
+	for(int i=1;i<=n;i++)
+		make(i);
+	for(int i=0;i<k;i++) {
+		int a, b;
+		cin>>a>>b;
+		unionParents(a, b);
+	}
+	int ans = 0;
+	for(int i=1;i<=n;i++) {
+		if(findParent(i) == i)
+			ans++;
+	}
+	cout<<ans<<"\n";
+}
